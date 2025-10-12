@@ -1,8 +1,8 @@
 app_name = "emrys_app"
 app_title = "Emrys"
-app_publisher = "jishnu"
+app_publisher = "Jishnu"
 app_description = "Emrys"
-app_email = "jishnupb0982gmail.com"
+app_email = "Jishnu@gmail.com"
 app_license = "MIT"
 
 # Includes in <head>
