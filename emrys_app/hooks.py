@@ -27,7 +27,12 @@ app_license = "MIT"
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-# doctype_js = {"doctype" : "public/js/doctype.js"}
+doctype_js = {
+	"Task" : "public/js/task.js",
+	"Project" : "public/js/project.js",
+	"Timesheet" : "public/js/time_sheet.js",
+	"Customer":"public/js/customer.js"
+	}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -117,33 +122,32 @@ app_license = "MIT"
 # Hook on document methods and events
 
 # doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
+# 	"Task": {
+# 		"validate": "emrys_app.tasks.create_todo",
+		
 # 	}
 # }
 
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"emrys_app.tasks.all"
-# 	],
-# 	"daily": [
-# 		"emrys_app.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"emrys_app.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"emrys_app.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"emrys_app.tasks.monthly"
-# 	],
-# }
+scheduler_events = {
+	# "all": [
+	# 	"emrys_app.tasks.all"
+	# ],
+	"daily": [
+		"emrys_app.tasks.duplicate_project"
+	],
+	# "hourly": [
+	# 	"emrys_app.tasks.hourly"
+	# ],
+	# "weekly": [
+	# 	"emrys_app.tasks.weekly"
+	# ],
+	# "monthly": [
+	# 	"emrys_app.tasks.monthly"
+	# ],
+}
 
 # Testing
 # -------
