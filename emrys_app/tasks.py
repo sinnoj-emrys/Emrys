@@ -2,48 +2,45 @@ import frappe
 from frappe.utils import get_url
 from frappe.utils import getdate, add_days, add_months, today
 
+
+
 def duplicate_project():
-    customers = frappe.db.get_all("Customer")  # Get all customers
-    for cus in customers:
-        customer = frappe.get_doc("Customer", cus.name)
-        for project in customer.custom_project_details:
-            # Ensure the end_date is a valid date before proceeding
-                project_end_date = getdate(project.end_date)
-                if project_end_date < getdate(today()) and project.completed == 0:
-                    original = frappe.get_doc("Project", project.project)
-                    repetition_period = original.custom_repetition_period
-                    end_date = None
+    project_details= frappe.db.get_all("Project Details",filters = {"completed":0,"end_date":["<",getdate(today())]},fields = ["name","parent","project","end_date"])
+    for pro in project_details:
+        repetition_period = frappe.db.get_value("Project",pro.project,"custom_repetition_period")
+        end_date = None
                     
-                    # Calculate the new end date based on repetition period
-                    if repetition_period == "Quarterly":
-                        end_date = add_months(add_days(project_end_date, 1), 3)
-                    elif repetition_period == "Monthly":
-                        end_date = add_months(add_days(project_end_date, 1), 1)
-                    elif repetition_period == "Weekly":
-                        end_date = add_days(project_end_date, 7)
-                    elif repetition_period == "Daily":
-                        end_date = add_days(project_end_date, 1)
+        # Calculate the new end date based on repetition period
+        if repetition_period == "Quarterly":
+            end_date = add_months(add_days(pro.end_date, 1), 3)
+        elif repetition_period == "Monthly":
+            end_date = add_months(add_days(pro.end_date, 1), 1)
+        elif repetition_period == "Weekly":
+            end_date = add_days(pro.end_date, 8)
+        elif repetition_period == "Daily":
+            end_date = add_days(pro.end_date, 2)
+        # If end_date is still None, throw an error
+        if not end_date:
+            return
 
-                    # If end_date is still None, throw an error
-                    if not end_date:
-                        return
-                    # Create the new project
-                    new_project = frappe.copy_doc(original)
-                    new_project.insert(ignore_permissions=True)
-                    # Mark original project as completed
-                    
-                    create_todo(original.name)
-                    project.completed = 1
 
-                    # Append new project details
-                    customer.append("custom_project_details", {
-                        "project": new_project.name,
-                        "start_date": add_days(project_end_date, 1),
-                        "end_date": add_days(end_date, -1)
-                    })
-                    customer.save()
+        original = frappe.get_doc("Project", pro.project)
 
-    
+        new_project = frappe.copy_doc(original)
+        new_project.insert(ignore_permissions=True)
+        # Mark original project as completed
+        create_todo(original.name)
+        frappe.db.set_value("Project Details",pro.name,"completed",1)
+
+        customer = frappe.get_doc("Customer",pro.parent)
+        # Append new project details
+        customer.append("custom_project_details", {
+            "project": new_project.name,
+            "start_date": add_days(pro.end_date, 1),
+            "end_date": add_days(end_date, -1)
+        })
+        customer.save()
+
 
 
 
@@ -85,5 +82,3 @@ def create_todo(original):
             to_do = frappe.get_doc("ToDo",{"reference_name":task.name})
             new_todo = frappe.copy_doc(to_do)
             new_todo.insert()
-
-
